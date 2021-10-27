@@ -1,10 +1,11 @@
-const BOOK_ID = "<>";
 const SHEET_NAME = "main";
+let slack;
 
 function main() {
+  slack = new slackNotifier(secret.getSlackId, "Task Factory");
   try {
     // スケジュール用スプシを読み込み
-    const book = SpreadsheetApp.openById(BOOK_ID);
+    const book = SpreadsheetApp.openById(secret.getBookId());
     const sheet = book.getSheetByName(SHEET_NAME);
 
     // 本日
@@ -20,11 +21,11 @@ function main() {
           row['Note'],
           new Date(`${today.getFullYear()}/${today.getMonth() + 1}/${row['DueDate']}`)
           );
-        postToSlack(`<@ma.iw>定期的なタスクを保存しました\n${row['Name']}`);
+        slack.postToSlack(`<@ma.iw>定期的なタスクを保存しました\n${row['Name']}`);
       }
     }
   } catch (error) {
-    postToSlack(`エラーが発生しました。\n${error}`);
+    slack.postToSlack(`エラーが発生しました。\n${error}`);
   }
 }
 
@@ -36,8 +37,6 @@ function makeDictionary(columns, row) {
   return ret;
 }
 
-const TASKLIST_ID = "<>";
-
 function addTask(title, notes, due) {
  const dueStr = Utilities.formatDate(due, "Asia/Tokyo", "yyyy-MM-dd");
  const task = {
@@ -47,28 +46,7 @@ function addTask(title, notes, due) {
  };
  
  // タスク追加
- Tasks.Tasks.insert(task, TASKLIST_ID);
+ Tasks.Tasks.insert(task, secret.getTasklistId());
  Utilities.sleep(500);
 }
 
-
-var postUrl = '<>';
-var username = 'Task Factory';  // 通知時に表示されるユーザー名
-
-function postToSlack(message) {
-  var jsonData =
-  {
-     "username" : username,
-     "text" : message
-  };
-  var payload = JSON.stringify(jsonData);
-
-  var options =
-  {
-    "method" : "post",
-    "contentType" : "application/json",
-    "payload" : payload
-  };
-
-  UrlFetchApp.fetch(postUrl, options);
-}
