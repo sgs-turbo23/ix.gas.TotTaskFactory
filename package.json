@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@sgs-turbo23/ix.js.slack_notifier": "^1.0.1"
+  }
+}
